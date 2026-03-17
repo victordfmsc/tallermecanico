@@ -1,21 +1,47 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  // Enable App Router (default in Next.js 14)
   reactStrictMode: true,
-  // Image optimization
   images: {
-    domains: [],
+    domains: ['shopflow.app', 'getshopflow.com'],
   },
-  // API routes are in src/app/api/
-  // The demo version uses in-memory storage (storage.ts)
-  // For production: replace with Prisma + PostgreSQL
   experimental: {
-    // Enable server actions
     serverActions: {
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: ['localhost:3000', 'shopflow.app', 'getshopflow.com'],
     },
   },
-}
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.fontshare.com; style-src 'self' 'unsafe-inline' https://api.fontshare.com; img-src 'self' data: https:; font-src 'self' https://api.fontshare.com; connect-src 'self' https:;",
+          },
+        ],
+      },
+    ];
+  },
+};
 
-export default nextConfig
+export default withSentryConfig(
+  nextConfig,
+  {
+    silent: true,
+    org: "shopflow",
+    project: "shop-management",
+  },
+  {
+    widenClientFileUpload: true,
+    transpileClientSDK: true,
+    tunnelRoute: "/monitoring",
+    hideSourceMaps: true,
+    disableLogger: true,
+    automaticVercelMonitors: true,
+  }
+);

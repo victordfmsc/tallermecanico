@@ -14,6 +14,11 @@ export const metadata: Metadata = {
   keywords: ['auto repair', 'shop management', 'work orders', 'automotive', 'SaaS'],
 }
 
+import { Providers } from '@/components/Providers'
+import { TrialBanner } from '@/components/TrialBanner'
+import { PostHogProvider, PostHogPageview } from '@/components/PostHogProvider'
+import { Suspense } from 'react'
+
 export default function RootLayout({
   children,
 }: {
@@ -29,7 +34,15 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <PostHogProvider>
+          <Suspense>
+            <PostHogPageview />
+          </Suspense>
+          <Providers>
+            <TrialBanner />
+            {children}
+          </Providers>
+        </PostHogProvider>
       </body>
     </html>
   )

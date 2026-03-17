@@ -198,7 +198,7 @@ export type InsertInspection = z.infer<typeof insertInspectionSchema>;
 
 // ─── Inventory Items ────────────────────────────
 export interface InventoryItem {
-  id: number;
+  id: string;
   name: string;
   sku: string;
   category: string;
@@ -220,6 +220,28 @@ export const insertInventoryItemSchema = z.object({
   supplier: z.string(),
 });
 export type InsertInventoryItem = z.infer<typeof insertInventoryItemSchema>;
+
+// ─── Purchase Orders ────────────────────────────
+export type PurchaseOrderStatus = "pending" | "received" | "cancelled";
+
+export interface PurchaseOrder {
+  id: string;
+  shopId: string;
+  itemId: string;
+  quantity: number;
+  supplier: string;
+  status: PurchaseOrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const insertPurchaseOrderSchema = z.object({
+  itemId: z.string(),
+  quantity: z.number().min(1),
+  supplier: z.string().min(1),
+  status: z.enum(["pending", "received", "cancelled"]).default("pending"),
+});
+export type InsertPurchaseOrder = z.infer<typeof insertPurchaseOrderSchema>;
 
 // ─── Messages ───────────────────────────────────
 export interface Message {
@@ -287,3 +309,24 @@ export const insertAppointmentSchema = z.object({
   notes: z.string().default(""),
 });
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+
+// ─── Users ──────────────────────────────────────
+export type UserRole = "OWNER" | "ADMIN" | "TECHNICIAN" | "RECEPTIONIST";
+
+export interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: UserRole;
+  shopId: string | null;
+  createdAt: string;
+}
+
+export const insertUserSchema = z.object({
+  name: z.string().nullable(),
+  email: z.string().email(),
+  password: z.string(),
+  role: z.enum(["OWNER", "ADMIN", "TECHNICIAN", "RECEPTIONIST"]).default("TECHNICIAN"),
+  shopId: z.string().nullable(),
+});
+export type InsertUser = z.infer<typeof insertUserSchema>;
