@@ -39,38 +39,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user, token }) {
-      if (session.user) {
-        // Find user in DB to get role and shopId
-        const dbUser = await prisma.user.findUnique({
-          where: { email: session.user.email },
-        });
-        if (dbUser) {
-          (session.user as any).id = dbUser.id;
-          (session.user as any).role = dbUser.role;
-          (session.user as any).isSuperAdmin = dbUser.isSuperAdmin;
-          (session.user as any).shopId = dbUser.shopId;
-
-          // Add subscription info
-          const shop = await prisma.shop.findUnique({
-            where: { id: dbUser.shopId || "" },
-            select: { subscriptionStatus: true, trialEndsAt: true }
-          });
-          if (shop) {
-            (session.user as any).subscriptionStatus = shop.subscriptionStatus;
-            (session.user as any).trialEndsAt = shop.trialEndsAt;
-          }
-        }
+    async session({ session, token }) {
+      if (session.user && token) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+        (session.user as any).isSuperAdmin = token.isSuperAdmin;
+        (session.user as any).shopId = token.shopId;
+        (session.user as any).subscriptionStatus = token.subscriptionStatus;
+        (session.user as any).trialEndsAt = token.trialEndsAt;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
-        token.isSuperAdmin = (user as any).isSuperAdmin;
-        token.shopId = (user as any).shopId;
-        token.subscriptionStatus = (user as any).subscriptionStatus;
-        token.trialEndsAt = (user as any).trialEndsAt;
+        // On sign-in, fetch fresh user+shop data from DB
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+          include: {
+            shop: {
+              select: { subscriptionStatus: true, trialEndsAt: true },
+            },
+          },
+        });
+
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.isSuperAdmin = dbUser.isSuperAdmin;
+          token.shopId = dbUser.shopId;
+          token.subscriptionStatus = dbUser.shop?.subscriptionStatus ?? null;
+          token.trialEndsAt = dbUser.shop?.trialEndsAt?.toISOString() ?? null;
+        }
       }
       return token;
     },
@@ -81,4 +80,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
+  // NextAuth v5 uses AUTH_SECRET (not NEXTAUTH_SECRET)
+  secret: process.env.AUTH_SECRET,
 });
