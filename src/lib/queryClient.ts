@@ -1,6 +1,7 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+// queryClient.ts — Next.js version
+// No Vite __PORT_5000__ proxy needed — Next.js API routes are co-located at /api/*
 
-const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
+import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -12,9 +13,9 @@ async function throwIfResNotOk(res: Response) {
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined,
+  data?: unknown,
 ): Promise<Response> {
-  const res = await fetch(`${API_BASE}${url}`, {
+  const res = await fetch(url, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -30,7 +31,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(`${API_BASE}${queryKey.join("/")}`);
+    // Build URL — join array keys with "/" but avoid double-slashes
+    const url = Array.isArray(queryKey)
+      ? (queryKey[0] as string)
+      : (queryKey as string);
+
+    const res = await fetch(url);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
@@ -46,8 +52,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 30_000, // 30s stale time (next.js server renders; keep fresh)
+      retry: 1,
     },
     mutations: {
       retry: false,
