@@ -1,6 +1,10 @@
 import { stripe } from "../src/lib/stripe";
 
 async function seedStripe() {
+  if (!stripe) {
+    console.error("Stripe is not initialized. Please set STRIPE_SECRET_KEY.");
+    return;
+  }
   console.log("Seeding Stripe products...");
 
   const plans = [

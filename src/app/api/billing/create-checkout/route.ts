@@ -10,6 +10,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!stripe) {
+      return NextResponse.json({ error: "Stripe configuration missing" }, { status: 500 });
+    }
+
     const { priceId } = await req.json();
     if (!priceId) {
       return NextResponse.json({ error: "Price ID is required" }, { status: 400 });

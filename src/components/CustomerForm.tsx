@@ -63,7 +63,7 @@ export function CustomerForm({ onSuccess }: { onSuccess?: () => void }) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
-          control: form.control,
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -78,7 +78,7 @@ export function CustomerForm({ onSuccess }: { onSuccess?: () => void }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            control: form.control,
+            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -92,7 +92,7 @@ export function CustomerForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="phone"
             render={({ field }) => (
               <FormItem>
@@ -107,7 +107,7 @@ export function CustomerForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
 
         <FormField
-          control: form.control,
+          control={form.control}
           name="address"
           render={({ field }) => (
             <FormItem>

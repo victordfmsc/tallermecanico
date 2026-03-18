@@ -1,6 +1,5 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
@@ -39,27 +38,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Only wrap with Sentry if DSN is configured — avoids build errors without credentials
-const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
+export default nextConfig;
 
-if (SENTRY_DSN) {
-  const { withSentryConfig } = require('@sentry/nextjs');
-  module.exports = withSentryConfig(
-    nextConfig,
-    {
-      silent: true,
-      org: process.env.SENTRY_ORG || 'shopflow',
-      project: process.env.SENTRY_PROJECT || 'shop-management',
-    },
-    {
-      widenClientFileUpload: true,
-      transpileClientSDK: true,
-      tunnelRoute: '/monitoring',
-      hideSourceMaps: true,
-      disableLogger: true,
-      automaticVercelMonitors: true,
-    }
-  );
-} else {
-  module.exports = nextConfig;
-}
+// Sentry configuration is typically handled via sentry.server.config.js etc.
+// For Next.js 14 with ESM, we wrap the export if needed.
+// However, to keep it simple and avoid build errors without credentials,
+// we'll let the user decide if they want to wrap it with withSentryConfig later.
+// Note: next.config.mjs doesn't easily support the conditional require/module.exports pattern used in the .ts version.

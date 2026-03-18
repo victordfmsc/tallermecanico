@@ -10,6 +10,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (!stripe) {
+      return NextResponse.json({ error: "Stripe configuration missing" }, { status: 500 });
+    }
+
     const shopId = (session.user as any).shopId;
     const shop = await prisma.shop.findUnique({
       where: { id: shopId },

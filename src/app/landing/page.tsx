@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useState } from "react";
 import { CookieBanner } from "@/components/legal/CookieBanner";
@@ -171,7 +171,7 @@ export default function LandingPage() {
           </Badge>
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none italic max-w-5xl mx-auto">
             Gestiona tu taller mecánico <br />
-            <span className="text-transparent" style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.8)' }}>como los grandes</span>
+            <span className="text-transparent" style={{ WebkitTextStroke: '1.5px rgba(255,255,255,0.8)' } as any}>como los grandes</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
             La plataforma definitiva para digitalizar tu negocio: ahorra tiempos administrativos, 

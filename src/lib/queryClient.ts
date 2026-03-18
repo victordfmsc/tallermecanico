@@ -33,8 +33,8 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     // Build URL — join array keys with "/" but avoid double-slashes
     const url = Array.isArray(queryKey)
-      ? (queryKey[0] as string)
-      : (queryKey as string);
+      ? (queryKey[0] as unknown as string)
+      : (queryKey as unknown as string);
 
     const res = await fetch(url);
 

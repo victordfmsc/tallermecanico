@@ -26,7 +26,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function MarketingPage() {
   const queryClient = useQueryClient();
@@ -99,7 +101,7 @@ export default function MarketingPage() {
     <div className="p-4 md:p-8 space-y-8 bg-[#0a0a0a] min-h-screen text-white">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" } as any}>
             Marketing Automático
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Atrae clientes y aumenta la recurrencia con campañas reales</p>

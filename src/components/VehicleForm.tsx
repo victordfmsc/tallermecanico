@@ -84,7 +84,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            control: form.control,
+            control={form.control}
             name="brand"
             render={({ field }) => (
               <FormItem>
@@ -98,7 +98,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="model"
             render={({ field }) => (
               <FormItem>
@@ -114,7 +114,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
-            control: form.control,
+            control={form.control}
             name="year"
             render={({ field }) => (
               <FormItem>
@@ -133,7 +133,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="color"
             render={({ field }) => (
               <FormItem>
@@ -147,7 +147,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="mileage"
             render={({ field }) => (
               <FormItem>
@@ -168,7 +168,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            control: form.control,
+            control={form.control}
             name="licensePlate"
             render={({ field }) => (
               <FormItem>
@@ -182,7 +182,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="vin"
             render={({ field }) => (
               <FormItem>
@@ -197,7 +197,7 @@ export function VehicleForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
 
         <FormField
-          control: form.control,
+          control={form.control}
           name="customerId"
           render={({ field }) => (
             <FormItem>

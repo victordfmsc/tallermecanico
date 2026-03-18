@@ -47,7 +47,7 @@ export default function InventoryPage() {
     },
   });
 
-  const categories = ["all", ...new Set(items?.map(i => i.category) || [])];
+  const categories = ["all", ...Array.from(new Set(items?.map(i => i.category) || []))];
 
   // Mutations
   const addItemMutation = useMutation({
@@ -106,7 +106,7 @@ export default function InventoryPage() {
     <div className="p-4 md:p-8 space-y-8 bg-[#0a0a0a] min-h-screen text-white">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" } as any}>
             Inventario
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Gestión de stock, repuestos y consumibles</p>

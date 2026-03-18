@@ -12,6 +12,10 @@ export async function POST(req: Request) {
   const body = await req.text();
   const signature = headers().get("stripe-signature")!;
 
+  if (!stripe) {
+    return new NextResponse("Stripe configuration missing", { status: 500 });
+  }
+
   let event: Stripe.Event;
 
   try {

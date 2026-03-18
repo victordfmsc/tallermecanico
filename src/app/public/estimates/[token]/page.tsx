@@ -5,7 +5,7 @@ import { CheckCircle2, XCircle, Clock, Car, User, FileText, Loader2, Sparkles } 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 export default function PublicEstimatePage({ params }: { params: { token: string } }) {
@@ -76,7 +76,7 @@ export default function PublicEstimatePage({ params }: { params: { token: string
               <span className="text-xs font-bold uppercase tracking-[0.3em]">ShopFlow Digital</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none italic">
-              Presupuesto <span className="text-transparent border-white/20" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.3)' }}>#{estimate.id.slice(-4)}</span>
+              Presupuesto <span className="text-transparent border-white/20" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.3)' } as any}>#{estimate.id.slice(-4)}</span>
             </h1>
             <p className="text-muted-foreground mt-2 font-medium">Revisa y autoriza la reparación de tu vehículo</p>
           </div>

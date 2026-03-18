@@ -13,7 +13,7 @@ export default function CookiePolicyPage() {
                 <th className="py-3 px-4">Nombre</th>
                 <th className="py-3 px-4">Proveedor</th>
                 <th className="py-3 px-4">Finalidad</th>
-              }
+              </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               <tr>

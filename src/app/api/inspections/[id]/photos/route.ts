@@ -15,6 +15,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const filename = `${Date.now()}-${file.name}`;
     const filePath = `${shopId}/${params.id}/${filename}`;
 
+    if (!supabase) {
+      return NextResponse.json({ error: "Supabase not configured" }, { status: 500 });
+    }
+
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
       .from('inspections')

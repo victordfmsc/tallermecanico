@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // ─── Technicians ────────────────────────────────
 export interface Technician {
-  id: number;
+  id: string;
   name: string;
   specialty: string;
   avatar: string;
@@ -25,7 +25,7 @@ export type InsertTechnician = z.infer<typeof insertTechnicianSchema>;
 
 // ─── Customers ──────────────────────────────────
 export interface Customer {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -47,8 +47,8 @@ export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 
 // ─── Vehicles ───────────────────────────────────
 export interface Vehicle {
-  id: number;
-  customerId: number;
+  id: string;
+  customerId: string;
   make: string;
   model: string;
   year: number;
@@ -59,7 +59,7 @@ export interface Vehicle {
 }
 
 export const insertVehicleSchema = z.object({
-  customerId: z.number(),
+  customerId: z.string(),
   make: z.string(),
   model: z.string(),
   year: z.number(),
@@ -74,10 +74,10 @@ export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
 export type WorkOrderStatus = "pending" | "diagnosis" | "in_progress" | "completed" | "delivered";
 
 export interface WorkOrder {
-  id: number;
-  vehicleId: number;
-  customerId: number;
-  technicianId: number;
+  id: string;
+  vehicleId: string;
+  customerId: string;
+  technicianId: string;
   status: WorkOrderStatus;
   services: string[];
   totalAmount: number;
@@ -88,9 +88,9 @@ export interface WorkOrder {
 }
 
 export const insertWorkOrderSchema = z.object({
-  vehicleId: z.number(),
-  customerId: z.number(),
-  technicianId: z.number(),
+  vehicleId: z.string(),
+  customerId: z.string(),
+  technicianId: z.string(),
   status: z.enum(["pending", "diagnosis", "in_progress", "completed", "delivered"]),
   services: z.array(z.string()),
   totalAmount: z.number(),
@@ -111,9 +111,9 @@ export interface EstimateLine {
 }
 
 export interface Estimate {
-  id: number;
-  customerId: number;
-  vehicleId: number;
+  id: string;
+  customerId: string;
+  vehicleId: string;
   status: EstimateStatus;
   lines: EstimateLine[];
   totalAmount: number;
@@ -122,8 +122,8 @@ export interface Estimate {
 }
 
 export const insertEstimateSchema = z.object({
-  customerId: z.number(),
-  vehicleId: z.number(),
+  customerId: z.string(),
+  vehicleId: z.string(),
   status: z.enum(["draft", "sent", "approved", "rejected"]),
   lines: z.array(z.object({
     description: z.string(),
@@ -140,9 +140,9 @@ export type InsertEstimate = z.infer<typeof insertEstimateSchema>;
 export type InvoiceStatus = "pending" | "paid" | "overdue";
 
 export interface Invoice {
-  id: number;
-  workOrderId: number;
-  customerId: number;
+  id: string;
+  workOrderId: string;
+  customerId: string;
   status: InvoiceStatus;
   totalAmount: number;
   paidAt: string | null;
@@ -151,8 +151,8 @@ export interface Invoice {
 }
 
 export const insertInvoiceSchema = z.object({
-  workOrderId: z.number(),
-  customerId: z.number(),
+  workOrderId: z.string(),
+  customerId: z.string(),
   status: z.enum(["pending", "paid", "overdue"]),
   totalAmount: z.number(),
   dueDate: z.string(),
@@ -170,10 +170,10 @@ export interface InspectionSection {
 }
 
 export interface Inspection {
-  id: number;
-  workOrderId: number;
-  vehicleId: number;
-  technicianId: number;
+  id: string;
+  workOrderId: string;
+  vehicleId: string;
+  technicianId: string;
   sections: InspectionSection[];
   overallStatus: InspectionItemStatus;
   progress: number;
@@ -182,9 +182,9 @@ export interface Inspection {
 }
 
 export const insertInspectionSchema = z.object({
-  workOrderId: z.number(),
-  vehicleId: z.number(),
-  technicianId: z.number(),
+  workOrderId: z.string(),
+  vehicleId: z.string(),
+  technicianId: z.string(),
   sections: z.array(z.object({
     name: z.string(),
     status: z.enum(["good", "warning", "critical"]),
@@ -245,8 +245,8 @@ export type InsertPurchaseOrder = z.infer<typeof insertPurchaseOrderSchema>;
 
 // ─── Messages ───────────────────────────────────
 export interface Message {
-  id: number;
-  customerId: number;
+  id: string;
+  customerId: string;
   direction: "inbound" | "outbound";
   content: string;
   readAt: string | null;
@@ -254,7 +254,7 @@ export interface Message {
 }
 
 export const insertMessageSchema = z.object({
-  customerId: z.number(),
+  customerId: z.string(),
   direction: z.enum(["inbound", "outbound"]),
   content: z.string(),
 });
@@ -265,7 +265,7 @@ export type CampaignType = "sms" | "email" | "review" | "reminder";
 export type CampaignStatus = "draft" | "active" | "completed" | "paused";
 
 export interface MarketingCampaign {
-  id: number;
+  id: string;
   name: string;
   type: CampaignType;
   status: CampaignStatus;
@@ -287,10 +287,10 @@ export type InsertCampaign = z.infer<typeof insertCampaignSchema>;
 
 // ─── Appointments (for calendar) ────────────────
 export interface Appointment {
-  id: number;
-  customerId: number;
-  vehicleId: number;
-  technicianId: number;
+  id: string;
+  customerId: string;
+  vehicleId: string;
+  technicianId: string;
   serviceType: string;
   date: string;
   startTime: string;
@@ -299,9 +299,9 @@ export interface Appointment {
 }
 
 export const insertAppointmentSchema = z.object({
-  customerId: z.number(),
-  vehicleId: z.number(),
-  technicianId: z.number(),
+  customerId: z.string(),
+  vehicleId: z.string(),
+  technicianId: z.string(),
   serviceType: z.string(),
   date: z.string(),
   startTime: z.string(),

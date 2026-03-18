@@ -90,7 +90,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
-            control: form.control,
+            control={form.control}
             name="vehicleId"
             render={({ field }) => (
               <FormItem>
@@ -115,7 +115,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
           />
 
           <FormField
-            control: form.control,
+            control={form.control}
             name="technicianId"
             render={({ field }) => (
               <FormItem>
@@ -158,7 +158,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
             <div key={field.id} className="flex gap-3 items-end">
               <div className="flex-1">
                 <FormField
-                  control: form.control,
+                  control={form.control}
                   name={`services.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
@@ -172,7 +172,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
               </div>
               <div className="w-24">
                 <FormField
-                  control: form.control,
+                  control={form.control}
                   name={`services.${index}.estimatedHours`}
                   render={({ field }) => (
                     <FormItem>
@@ -193,7 +193,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
               </div>
               <div className="w-32">
                 <FormField
-                  control: form.control,
+                  control={form.control}
                   name={`services.${index}.price`}
                   render={({ field }) => (
                     <FormItem>
@@ -229,7 +229,7 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
         </div>
 
         <FormField
-          control: form.control,
+          control={form.control}
           name="notes"
           render={({ field }) => (
             <FormItem>

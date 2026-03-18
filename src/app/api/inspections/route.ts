@@ -31,8 +31,8 @@ export async function POST(req: NextRequest) {
     const { shopId, userId } = await getAuthContext();
     const body = await req.json();
 
-    if (!body.workOrderId || !body.vehicleId) {
-      return NextResponse.json({ error: "workOrderId and vehicleId are required" }, { status: 400 });
+    if (!body.workOrderId) {
+      return NextResponse.json({ error: "workOrderId is required" }, { status: 400 });
     }
 
     const defaultSections = [
@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
       data: {
         shopId,
         workOrderId: body.workOrderId,
-        vehicleId: body.vehicleId,
         sections: defaultSections,
         progress: 0,
         overallStatus: "good",

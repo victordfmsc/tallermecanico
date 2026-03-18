@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Sheet } from "@/components/ui/sheet";
 import {
   Dialog,
@@ -46,7 +47,7 @@ export default function VehiclesPage() {
     <div className="p-4 md:p-8 space-y-8 bg-[#0a0a0a] min-h-screen text-white">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" }}>
+          <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" } as any}>
             Vehículos
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Inventario de flota y seguimiento de servicios</p>
@@ -60,7 +61,7 @@ export default function VehiclesPage() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-2xl bg-[#0a0a0a] border-white/10 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+              <DialogTitle className="text-2xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" } as any}>
                 Alta de Vehículo
               </DialogTitle>
             </DialogHeader>
@@ -114,7 +115,7 @@ export default function VehiclesPage() {
                     {vehicle.licensePlate}
                   </Badge>
                   <h3 className="text-xl font-bold text-white uppercase group-hover:text-primary transition-colors">
-                    {vehicle.brand} {vehicle.model}
+                    {vehicle.make} {vehicle.model}
                   </h3>
                   <p className="text-xs text-muted-foreground uppercase tracking-tighter">
                     VIN: {vehicle.vin.slice(-8).toUpperCase()}
