@@ -4,6 +4,7 @@
   "private": true,
   "description": "ShopFlow — Auto Repair Shop Management SaaS",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
