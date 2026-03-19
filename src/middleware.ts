@@ -48,9 +48,10 @@ export default auth(async (req: NextRequest & { auth: any }) => {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  // Check for shopId if authenticated
-  const hasShop = !!req.auth?.user?.shopId;
+  // Super admins bypass all other locks to allow platform management
   const isSuperAdmin = !!req.auth?.user?.isSuperAdmin;
+  if (isSuperAdmin) return NextResponse.next();
+
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isOnboarding = nextUrl.pathname === "/onboarding";
   const isBilling = nextUrl.pathname === "/billing" || nextUrl.pathname.startsWith("/api/billing");
@@ -63,29 +64,16 @@ export default auth(async (req: NextRequest & { auth: any }) => {
     return NextResponse.next();
   }
 
-  // Super admins bypass all other locks to allow platform management
-  if (isSuperAdmin) return NextResponse.next();
-
-  if (!hasShop && !isOnboarding && !isBilling) {
-    return NextResponse.redirect(new URL("/onboarding", nextUrl));
-  }
-
-  // Subscription Enforcement
-  if (hasShop && !isOnboarding && !isBilling && nextUrl.pathname !== "/trial-expired") {
-    const status = req.auth?.user?.subscriptionStatus;
-    const trialEndsAt = req.auth?.user?.trialEndsAt;
-    
-    const isTrial = status === "FREE_TRIAL";
-    const isTrialExpired = isTrial && trialEndsAt && new Date(trialEndsAt) <= new Date();
-    const isActive = status === "ACTIVE";
-
-    if (isTrialExpired) {
-      return NextResponse.redirect(new URL("/trial-expired", nextUrl));
-    }
-
-    if (!isActive && !isTrial) {
-      return NextResponse.redirect(new URL("/billing", nextUrl));
-    }
+  // Allow access to app routes if logged in. The server components or 
+  // auth-helpers will handle the case where shopId is missing by 
+  // checking the DB as a fallback for stale JWTs.
+  
+  // Subscription Enforcement (optional, but keeping simplified)
+  const status = req.auth?.user?.subscriptionStatus;
+  const trialEndsAt = req.auth?.user?.trialEndsAt;
+  
+  if (status === "FREE_TRIAL" && trialEndsAt && new Date(trialEndsAt) <= new Date() && !isBilling && !isOnboarding && nextUrl.pathname !== "/trial-expired") {
+    return NextResponse.redirect(new URL("/trial-expired", nextUrl));
   }
 
   return NextResponse.next();

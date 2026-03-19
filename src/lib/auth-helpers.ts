@@ -13,9 +13,19 @@ export async function getAuthContext() {
   }
 
   const session = await auth();
-  const shopId = (session?.user as any)?.shopId;
+  let shopId = (session?.user as any)?.shopId;
   const userId = (session?.user as any)?.id;
+  const email = session?.user?.email;
   
+  // Robust Fallback: If shopId is missing in session (stale JWT), fetch from DB
+  if (!shopId && email) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { shopId: true }
+    });
+    shopId = user?.shopId;
+  }
+
   if (!shopId || !userId) {
     throw new Error("Unauthorized: Missing shop or user context");
   }
