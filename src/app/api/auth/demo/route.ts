@@ -12,5 +12,5 @@ export async function GET() {
     maxAge: 60 * 60 * 24 // 24 hours
   });
 
-  return NextResponse.redirect(new URL("/dashboard", process.env.NEXTAUTH_URL || "http://localhost:3000"));
+  return NextResponse.redirect(new URL("/dashboard", req.url));
 }
