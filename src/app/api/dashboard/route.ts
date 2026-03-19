@@ -5,6 +5,62 @@ import { getShopId } from "@/lib/auth-helpers";
 export async function GET() {
   try {
     const shopId = await getShopId();
+
+    if (shopId === "demo_shop_id") {
+      // Return high-quality mock data for demo mode
+      return NextResponse.json({
+        kpis: {
+          todayOrders: 12,
+          weekRevenue: 8450.25,
+          activeTechs: 5,
+          pendingAppts: 8,
+        },
+        weeklyRevenue: [
+          { week: "Sem 1", revenue: 6200 },
+          { week: "Sem 2", revenue: 7800 },
+          { week: "Sem 3", revenue: 7100 },
+          { week: "Sem 4", revenue: 8450 },
+        ],
+        statusCounts: {
+          pending: 3,
+          diagnosis: 2,
+          in_progress: 4,
+          completed: 2,
+          delivered: 1,
+        },
+        recentOrders: [
+          {
+            id: "work_demo_1",
+            createdAt: new Date().toISOString(),
+            status: "in_progress",
+            totalAmount: 450.00,
+            customer: { name: "Juan Pérez" },
+            vehicle: { brand: "BMW", model: "Serie 3", plate: "1234 ABC" }
+          },
+          {
+            id: "work_demo_2",
+            createdAt: new Date().toISOString(),
+            status: "completed",
+            totalAmount: 120.50,
+            customer: { name: "Maria García" },
+            vehicle: { brand: "Audi", model: "A3", plate: "5678 DEF" }
+          },
+          {
+            id: "work_demo_3",
+            createdAt: new Date().toISOString(),
+            status: "pending",
+            totalAmount: 890.00,
+            customer: { name: "Talleres Unidos" },
+            vehicle: { brand: "Mercedes", model: "Class C", plate: "9012 GHI" }
+          }
+        ],
+        alerts: [
+          { type: "inventory", message: "Pastillas de freno (Brembo) tienen poco stock (2 uds.)" },
+          { type: "appointment", message: "Demostración de sistema activa: Bienvenido a ShopFlow" },
+        ],
+      });
+    }
+
     const now = new Date();
     
     // Today boundary

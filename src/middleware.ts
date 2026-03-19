@@ -5,9 +5,10 @@ import type { NextRequest } from "next/server";
 export default auth(async (req: NextRequest & { auth: any }) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
+  const isDemoMode = req.cookies.get("shopflow_demo_mode")?.value === "true";
 
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
-  const isPublicRoute = ["/login", "/register", "/landing"].includes(nextUrl.pathname) || 
+  const isPublicRoute = ["/login", "/register", "/landing", "/demo"].includes(nextUrl.pathname) || 
                        nextUrl.pathname.startsWith("/public/");
 
   // Rate Limiting for Auth
@@ -37,13 +38,13 @@ export default auth(async (req: NextRequest & { auth: any }) => {
   if (isApiAuthRoute) return NextResponse.next();
 
   if (isPublicRoute) {
-    if (isLoggedIn) {
+    if (isLoggedIn || isDemoMode) {
       return NextResponse.redirect(new URL("/dashboard", nextUrl));
     }
     return NextResponse.next();
   }
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn && !isDemoMode) {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
 

@@ -126,6 +126,13 @@ export default function LoginPage() {
             </Button>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
+            <Button
+              variant="secondary"
+              className="w-full bg-white/10 hover:bg-white/20 text-white py-6"
+              onClick={() => window.location.href = "/api/auth/demo"}
+            >
+              Probar Demo (Sin Registro)
+            </Button>
             <p className="text-sm text-center text-muted-foreground w-full">
               ¿No tienes cuenta?{" "}
               <Link href="/register" className="text-primary font-semibold hover:underline">

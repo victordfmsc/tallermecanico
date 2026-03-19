@@ -140,6 +140,9 @@ export default function LandingPage() {
             <Link href="#pricing" className="hover:text-primary transition-colors">Precios</Link>
             <Link href="#testimonials" className="hover:text-primary transition-colors">Testimonios</Link>
             <Link href="/login" className="hover:text-primary transition-colors">Acceder</Link>
+            <Button variant="outline" className="border-white/10 text-white h-10 px-4 hidden lg:flex" onClick={() => window.location.href = "/api/auth/demo"}>
+              Probar Demo
+            </Button>
             <Button asChild className="bg-primary hover:bg-primary/90 text-white px-6">
               <Link href="/register">Empezar Gratis</Link>
             </Button>
@@ -181,8 +184,12 @@ export default function LandingPage() {
             <Button asChild className="bg-primary hover:bg-primary/90 text-white text-lg font-black uppercase tracking-widest h-16 px-10 shadow-[0_0_30px_rgba(232,92,26,0.3)]">
               <Link href="/register">Empezar gratis 14 días</Link>
             </Button>
-            <Button variant="outline" className="text-lg font-bold uppercase tracking-widest h-16 px-10 border-white/10 hover:bg-white/5">
-              <Play className="h-5 w-5 mr-3 fill-white" /> Ver Demo
+            <Button 
+              variant="outline" 
+              className="text-lg font-bold uppercase tracking-widest h-16 px-10 border-white/10 hover:bg-white/5"
+              onClick={() => window.location.href = "/api/auth/demo"}
+            >
+              <Play className="h-5 w-5 mr-3 fill-white" /> Probar Demo
             </Button>
           </div>
 
