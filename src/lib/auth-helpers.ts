@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { cookies } from "next/headers";
+import { prisma } from "@/lib/db";
 
 const DEMO_SHOP_ID = "demo_shop_id";
 const DEMO_USER_ID = "demo_user_id";
