@@ -54,6 +54,29 @@ export default function OnboardingPage() {
 
   const renderStep = () => {
     switch (step) {
+      case 0:
+        return (
+          <div className="space-y-6">
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-bold text-white">¡Bienvenido a ShopFlow!</h2>
+              <p className="text-muted-foreground text-sm">Empecemos configurando el nombre de tu taller.</p>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-gray-300">Nombre del Taller</Label>
+                <Input 
+                  value={shopName} 
+                  onChange={(e) => setShopName(e.target.value)}
+                  placeholder="Ej: Taller Mecánico Rayo"
+                  className="bg-white/5 border-white/10 text-white"
+                />
+              </div>
+            </div>
+            <Button onClick={() => nextStep({ name: shopName })} className="w-full bg-primary py-6" disabled={loading || !shopName}>
+              Crear Taller y Continuar <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        );
       case 1:
         return (
           <div className="space-y-6">
