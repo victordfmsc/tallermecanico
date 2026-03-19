@@ -50,25 +50,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        // On sign-in, fetch fresh user+shop data from DB
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          include: {
-            shop: {
-              select: { subscriptionStatus: true, trialEndsAt: true },
+    async jwt({ token, user, trigger, session }) {
+      // On sign-in or when explicitly updating
+      if (user || trigger === "update") {
+        const email = user?.email || token.email;
+        if (email) {
+          const dbUser = await prisma.user.findUnique({
+            where: { email },
+            include: {
+              shop: {
+                select: { subscriptionStatus: true, trialEndsAt: true },
+              },
             },
-          },
-        });
+          });
 
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.role = dbUser.role;
-          token.isSuperAdmin = dbUser.isSuperAdmin;
-          token.shopId = dbUser.shopId;
-          token.subscriptionStatus = dbUser.shop?.subscriptionStatus ?? null;
-          token.trialEndsAt = dbUser.shop?.trialEndsAt?.toISOString() ?? null;
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+            token.isSuperAdmin = dbUser.isSuperAdmin;
+            token.shopId = dbUser.shopId;
+            token.subscriptionStatus = dbUser.shop?.subscriptionStatus ?? null;
+            token.trialEndsAt = dbUser.shop?.trialEndsAt?.toISOString() ?? null;
+          }
         }
       }
       return token;

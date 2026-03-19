@@ -9,12 +9,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ShopFlowLogo } from "@/components/ShopFlowLogo";
 import { Check, UserPlus, Clock, PartyPopper, ChevronRight, ChevronLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useSession } from "next-auth/react";
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [shopName, setShopName] = useState("");
   const router = useRouter();
+  const { update } = useSession();
 
   // Form states
   const [address, setAddress] = useState("");
@@ -42,6 +44,12 @@ export default function OnboardingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ step, data }),
       });
+      
+      // If we just created the shop, refresh the session to pick up shopId
+      if (step === 0) {
+        await update();
+      }
+
       setStep(prev => prev + 1);
     } catch (error) {
       console.error(error);
@@ -177,7 +185,15 @@ export default function OnboardingPage() {
               <h2 className="text-3xl font-bold text-white">¡Todo listo, {shopName}!</h2>
               <p className="text-muted-foreground">Tu taller ya está configurado. Es hora de llevar tu negocio al siguiente nivel.</p>
             </div>
-            <Button onClick={() => router.push("/dashboard")} className="w-full bg-primary py-8 text-lg font-bold" disabled={loading}>
+            <Button 
+              onClick={async () => {
+                setLoading(true);
+                await update();
+                router.push("/dashboard");
+              }} 
+              className="w-full bg-primary py-8 text-lg font-bold" 
+              disabled={loading}
+            >
               Ir al Dashboard
             </Button>
           </div>
