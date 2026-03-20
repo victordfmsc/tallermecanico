@@ -134,6 +134,7 @@ model WorkOrder {
   technician Technician? @relation(fields: [technicianId], references: [id])
   inspections Inspection[]
   invoices    Invoice[]
+  estimates   Estimate[]
 }
 
 model Estimate {
