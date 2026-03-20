@@ -120,6 +120,7 @@ export interface Estimate {
   id: string;
   customerId: string;
   vehicleId: string;
+  workOrderId: string | null;
   status: EstimateStatus;
   lines: EstimateLine[];
   totalAmount: number;
@@ -131,6 +132,7 @@ export const insertEstimateSchema = z.object({
   customerId: z.string(),
   vehicleId: z.string(),
   status: z.enum(["draft", "sent", "approved", "rejected"]),
+  workOrderId: z.string().optional().nullable(),
   lines: z.array(z.object({
     description: z.string(),
     type: z.enum(["service", "part"]),

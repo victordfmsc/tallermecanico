@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Send, FileText } from "lucide-react";
+import { Send, FileText, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
@@ -42,6 +42,27 @@ export default function EstimatesPage() {
       toast({ title: "Presupuesto enviado", description: "El cliente ha recibido el presupuesto por email." });
     },
   });
+  
+  const handleWhatsApp = (est: any) => {
+    const origin = window.location.origin;
+    const estimateLink = `${origin}/public/estimates/${est.publicToken}`;
+    const inspectionId = est.workOrder?.inspections?.[0]?.id;
+    const inspectionLink = inspectionId ? `${origin}/public/inspections/${inspectionId}` : "";
+    
+    let message = `Hola ${est.customer?.name || est.customerName}, aquí tienes el presupuesto para tu vehículo ${est.vehicleInfo || (est.vehicle?.make + " " + est.vehicle?.model)}: ${estimateLink}`;
+    
+    if (inspectionLink) {
+      message += `\n\nTambién puedes revisar el informe de inspección digital aquí: ${inspectionLink}`;
+    }
+    
+    message += `\n\n¿Damos el visto bueno para comenzar? Un saludo de ${est.shop?.name || "tu taller"}.`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const phone = est.customer?.phone || "";
+    const cleanPhone = phone.replace(/\D/g, "");
+    
+    window.open(`https://wa.me/${cleanPhone}?text=${encodedMessage}`, "_blank");
+  };
 
   return (
     <DashboardLayout>
@@ -82,16 +103,26 @@ export default function EstimatesPage() {
                       <td className="p-3 text-muted-foreground">{est.createdAt}</td>
                       <td className="p-3 text-right font-medium">€{est.totalAmount?.toFixed(2)}</td>
                       <td className="p-3 text-right">
-                        {est.status === "draft" && (
+                        <div className="flex justify-end gap-2">
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={e => { e.stopPropagation(); sendMutation.mutate(est.id); }}
-                            data-testid={`send-est-${est.id}`}
+                            variant="ghost"
+                            className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
+                            onClick={e => { e.stopPropagation(); handleWhatsApp(est); }}
                           >
-                            <Send className="w-3 h-3 mr-1" /> Enviar
+                            <MessageCircle className="w-4 h-4" />
                           </Button>
-                        )}
+                          {est.status === "draft" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={e => { e.stopPropagation(); sendMutation.mutate(est.id); }}
+                              data-testid={`send-est-${est.id}`}
+                            >
+                              <Send className="w-3 h-3 mr-1" /> Enviar
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -149,15 +180,22 @@ export default function EstimatesPage() {
                     <span className="text-lg font-bold">€{selected.totalAmount?.toFixed(2)}</span>
                   </div>
 
-                  {selected.status === "draft" && (
-                    <Button
-                      className="w-full"
-                      onClick={() => { sendMutation.mutate(selected.id); setSelected(null); }}
-                      data-testid="send-estimate-detail"
-                    >
-                      <Send className="w-4 h-4 mr-1.5" /> Enviar al Cliente
-                    </Button>
-                  )}
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1"
+                        onClick={() => { sendMutation.mutate(selected.id); setSelected(null); }}
+                        data-testid="send-estimate-detail"
+                      >
+                        <Send className="w-4 h-4 mr-1.5" /> Enviar Email
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10 gap-2"
+                        onClick={() => handleWhatsApp(selected)}
+                      >
+                        <MessageCircle className="w-4 h-4" /> WhatsApp
+                      </Button>
+                    </div>
                 </div>
               </>
             )}

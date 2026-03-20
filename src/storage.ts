@@ -87,7 +87,22 @@ export class PrismaStorage implements IStorage {
 
   // Estimates
   async getEstimates(shopId: string) {
-    return await prisma.estimate.findMany({ where: { shopId } });
+    return await prisma.estimate.findMany({ 
+      where: { shopId },
+      include: {
+        customer: true,
+        vehicle: true,
+        workOrder: {
+          include: {
+            inspections: {
+              orderBy: { createdAt: 'desc' },
+              take: 1
+            }
+          }
+        }
+      } as any,
+      orderBy: { createdAt: 'desc' }
+    });
   }
   async createEstimate(shopId: string, e: any) {
     return await prisma.estimate.create({ 
@@ -95,6 +110,7 @@ export class PrismaStorage implements IStorage {
         ...e,
         shopId,
         lines: e.lines || [],
+        publicToken: Math.random().toString(36).substring(2, 15),
       } 
     });
   }

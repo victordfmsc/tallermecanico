@@ -76,6 +76,35 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
     },
   });
 
+  const createEstimateMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/estimates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          workOrderId: order.id, 
+          customerId: order.customerId,
+          vehicleId: order.vehicleId,
+          status: "draft",
+          totalAmount: order.totalAmount,
+          lines: order.services.map((s: any) => ({
+            description: s.name,
+            type: "service",
+            quantity: 1,
+            unitPrice: s.price,
+            approved: false
+          }))
+        }),
+      });
+      if (!res.ok) throw new Error("Error al crear presupuesto");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/estimates"] });
+      router.push("/estimates");
+    },
+  });
+
   const createInspectionMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch(`/api/inspections`, {
@@ -243,6 +272,14 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
                   <ClipboardCheck className="h-4 w-4" /> Inspección
                 </>
               )}
+            </Button>
+            <Button
+              variant="outline"
+              className="h-12 border-primary/20 hover:bg-primary/10 text-primary gap-2 font-bold"
+              onClick={() => createEstimateMutation.mutate()}
+              disabled={createEstimateMutation.isPending}
+            >
+              {createEstimateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />} Presupuesto
             </Button>
           </div>
         </div>

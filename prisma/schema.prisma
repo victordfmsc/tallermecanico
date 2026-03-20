@@ -141,6 +141,7 @@ model Estimate {
   shopId      String
   customerId  String
   vehicleId   String
+  workOrderId String?
   status      String   @default("draft") // draft | sent | approved | rejected
   lines       Json     @default("[]")
   totalAmount Float    @default(0)
@@ -149,9 +150,10 @@ model Estimate {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  shop     Shop     @relation(fields: [shopId], references: [id])
-  customer Customer @relation(fields: [customerId], references: [id])
-  vehicle  Vehicle  @relation(fields: [vehicleId], references: [id])
+  shop      Shop       @relation(fields: [shopId], references: [id])
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  vehicle   Vehicle    @relation(fields: [vehicleId], references: [id])
+  workOrder WorkOrder? @relation(fields: [workOrderId], references: [id])
 }
 
 model Invoice {
