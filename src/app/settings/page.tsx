@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 
 const settingsSchema = z.object({
   name: z.string().min(1, "Nombre del taller es requerido"),
@@ -34,6 +34,7 @@ type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 export default function SettingsPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: shop, isLoading } = useQuery({
     queryKey: ["/api/shop"],
@@ -63,10 +64,14 @@ export default function SettingsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/shop"] });
-      toast.success("Configuración guardada correctamente");
+      toast({ title: "Configuración guardada correctamente" });
     },
     onError: () => {
-      toast.error("Hubo un problema al guardar los cambios");
+      toast({ 
+        variant: "destructive", 
+        title: "Error", 
+        description: "Hubo un problema al guardar los cambios" 
+      });
     }
   });
 
