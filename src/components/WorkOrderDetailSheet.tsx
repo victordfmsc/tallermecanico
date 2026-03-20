@@ -13,8 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, FileText, ClipboardCheck, 
-  User, Car, Calendar, CreditCard, Loader2, AlertCircle
+  User, Car, Calendar, CreditCard, Loader2, AlertCircle,
+  Settings2
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Service {
   name: string;
@@ -160,22 +168,47 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
         )}
 
         {/* Workflow Controls */}
-        <div className="grid grid-cols-1 gap-3">
-          {nextStatus && (
-            <Button
-              className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold gap-3 text-base"
-              onClick={() => updateStatusMutation.mutate(nextStatus)}
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-wider">
+              <Settings2 className="h-3 w-3" /> Control de Estado
+            </div>
+            
+            <Select
+              value={order.status}
+              onValueChange={(newStatus) => updateStatusMutation.mutate(newStatus)}
               disabled={updateStatusMutation.isPending}
             >
-              {updateStatusMutation.isPending ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  Pasar a {statusLabels[nextStatus]} <ArrowRight className="h-5 w-5" />
-                </>
-              )}
-            </Button>
-          )}
+              <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 text-white font-bold">
+                {updateStatusMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Actualizando...
+                  </div>
+                ) : (
+                  <SelectValue placeholder="Cambiar estado" />
+                )}
+              </SelectTrigger>
+              <SelectContent className="bg-[#0a0a0a] border-white/10 text-white">
+                {Object.entries(statusLabels).map(([key, label]) => (
+                  <SelectItem key={key} value={key} className="focus:bg-primary/20 focus:text-white">
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {nextStatus && (
+              <Button
+                variant="ghost"
+                className="w-full h-10 text-primary hover:text-primary hover:bg-primary/10 font-bold gap-2 text-sm justify-between group"
+                onClick={() => updateStatusMutation.mutate(nextStatus)}
+                disabled={updateStatusMutation.isPending}
+              >
+                Sugerencia: Pasar a {statusLabels[nextStatus]}
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            )}
+          </div>
           
           <div className="grid grid-cols-2 gap-3">
             <Button
