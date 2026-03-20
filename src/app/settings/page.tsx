@@ -1,171 +1,217 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { 
+  Building2, MapPin, Phone, 
+  FileText, ImageIcon, Save,
+  Loader2, CheckCircle2
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Building, Users, Plug, Bell } from "lucide-react";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { toast } from "sonner";
 
-const integrations = [
-  { name: "QuickBooks", description: "Sincronización contable automática", connected: true },
-  { name: "Stripe", description: "Procesamiento de pagos online", connected: true },
-  { name: "CARFAX", description: "Informes de historial vehicular", connected: false },
-  { name: "PartsTech", description: "Catálogo de piezas multi-proveedor", connected: true },
-];
+const settingsSchema = z.object({
+  name: z.string().min(1, "Nombre del taller es requerido"),
+  nif: z.string().min(1, "NIF/CIF es requerido"),
+  address: z.string().min(1, "Dirección es requerida"),
+  phone: z.string().min(1, "Teléfono es requerido"),
+  logo: z.string().url("Debe ser una URL válida").or(z.literal("")),
+});
 
-const users = [
-  { name: "Víctor Díaz", email: "victor@shopflow.es", role: "Admin", avatar: "VD" },
-  { name: "Carlos Ruiz", email: "carlos@shopflow.es", role: "Técnico", avatar: "CR" },
-  { name: "Ana García", email: "ana@shopflow.es", role: "Técnico", avatar: "AG" },
-  { name: "Laura Sánchez", email: "laura@shopflow.es", role: "Recepcionista", avatar: "LS" },
-  { name: "Miguel Torres", email: "miguel@shopflow.es", role: "Técnico", avatar: "MT" },
-];
-
-const roleStyles: Record<string, string> = {
-  Admin: "bg-primary/10 text-primary",
-  Técnico: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  Recepcionista: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-};
+type SettingsFormValues = z.infer<typeof settingsSchema>;
 
 export default function SettingsPage() {
-  return (
-    <DashboardLayout>
-      <div className="p-4 md:p-6 space-y-4">
-        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)" }}>Configuración</h1>
+  const queryClient = useQueryClient();
 
-        <Tabs defaultValue="shop">
-          <TabsList>
-            <TabsTrigger value="shop" data-testid="tab-shop"><Building className="w-3.5 h-3.5 mr-1.5" /> Taller</TabsTrigger>
-            <TabsTrigger value="users" data-testid="tab-users"><Users className="w-3.5 h-3.5 mr-1.5" /> Usuarios</TabsTrigger>
-            <TabsTrigger value="integrations" data-testid="tab-integrations"><Plug className="w-3.5 h-3.5 mr-1.5" /> Integraciones</TabsTrigger>
-            <TabsTrigger value="notifications" data-testid="tab-notifications"><Bell className="w-3.5 h-3.5 mr-1.5" /> Notificaciones</TabsTrigger>
-          </TabsList>
+  const { data: shop, isLoading } = useQuery({
+    queryKey: ["/api/shop"],
+    queryFn: () => fetch("/api/shop").then(res => res.json()),
+  });
 
-          <TabsContent value="shop">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Información del Taller</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><Label>Nombre del Taller</Label><Input defaultValue="Taller Mecánico Central" data-testid="shop-name" /></div>
-                  <div><Label>CIF/NIF</Label><Input defaultValue="B12345678" data-testid="shop-cif" /></div>
-                  <div><Label>Teléfono</Label><Input defaultValue="+34 912 345 678" data-testid="shop-phone" /></div>
-                  <div><Label>Email</Label><Input defaultValue="info@tallercentral.es" data-testid="shop-email" /></div>
-                  <div className="md:col-span-2"><Label>Dirección</Label><Input defaultValue="Av. de la Industria 25, 28108 Alcobendas, Madrid" data-testid="shop-address" /></div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div><Label>Bahías de Trabajo</Label><Input type="number" defaultValue="6" data-testid="shop-bays" /></div>
-                  <div><Label>Horario</Label><Input defaultValue="Lun-Vie 8:00-18:00" data-testid="shop-hours" /></div>
-                  <div><Label>Moneda</Label><Input defaultValue="EUR (€)" data-testid="shop-currency" /></div>
-                </div>
-                <Button data-testid="save-shop">Guardar Cambios</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
+  const form = useForm<SettingsFormValues>({
+    resolver: zodResolver(settingsSchema),
+    values: {
+      name: shop?.name || "",
+      nif: shop?.nif || "",
+      address: shop?.address || "",
+      phone: shop?.phone || "",
+      logo: shop?.logo || "",
+    },
+  });
 
-          <TabsContent value="users">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-sm">Usuarios y Roles</CardTitle>
-                <Button size="sm" data-testid="add-user">Añadir Usuario</Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-left text-muted-foreground bg-muted/30">
-                        <th className="p-3 font-medium">Usuario</th>
-                        <th className="p-3 font-medium">Email</th>
-                        <th className="p-3 font-medium">Rol</th>
-                        <th className="p-3 font-medium text-right">Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user, i) => (
-                        <tr key={i} className="border-b last:border-0" data-testid={`user-row-${i}`}>
-                          <td className="p-3">
-                            <div className="flex items-center gap-2.5">
-                              <Avatar className="w-7 h-7">
-                                <AvatarFallback className="text-[10px] bg-primary/10 text-primary">{user.avatar}</AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">{user.name}</span>
-                            </div>
-                          </td>
-                          <td className="p-3 text-muted-foreground">{user.email}</td>
-                          <td className="p-3">
-                            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${roleStyles[user.role]}`}>
-                              {user.role}
-                            </span>
-                          </td>
-                          <td className="p-3 text-right">
-                            <Button variant="ghost" size="sm" className="text-xs">Editar</Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+  const mutation = useMutation({
+    mutationFn: async (values: SettingsFormValues) => {
+      const res = await fetch("/api/shop", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error("Error al guardar configuración");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/shop"] });
+      toast.success("Configuración guardada correctamente");
+    },
+    onError: () => {
+      toast.error("Hubo un problema al guardar los cambios");
+    }
+  });
 
-          <TabsContent value="integrations">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {integrations.map((int, i) => (
-                <Card key={i} data-testid={`integration-${int.name}`}>
-                  <CardContent className="p-4 flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold ${
-                      int.connected ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-500 dark:bg-gray-800"
-                    }`}>
-                      {int.name.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{int.name}</p>
-                      <p className="text-xs text-muted-foreground">{int.description}</p>
-                    </div>
-                    <Switch checked={int.connected} data-testid={`toggle-${int.name}`} />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+  const onSubmit = (values: SettingsFormValues) => {
+    mutation.mutate(values);
+  };
 
-          <TabsContent value="notifications">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Preferencias de Notificación</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  { label: "Nuevo presupuesto aprobado", desc: "Recibir notificación cuando un cliente aprueba un presupuesto", on: true },
-                  { label: "Stock bajo", desc: "Alertar cuando una pieza llegue al mínimo de stock", on: true },
-                  { label: "Cita próxima", desc: "Recordatorio 1 hora antes de cada cita", on: true },
-                  { label: "Orden completada", desc: "Notificar al completar una orden de trabajo", on: false },
-                  { label: "Nuevo mensaje de chat", desc: "Alertar cuando un cliente envía un mensaje", on: true },
-                  { label: "Factura vencida", desc: "Recordatorio de facturas sin pagar", on: true },
-                ].map((pref, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{pref.label}</p>
-                      <p className="text-xs text-muted-foreground">{pref.desc}</p>
-                    </div>
-                    <Switch defaultChecked={pref.on} data-testid={`notif-toggle-${i}`} />
-                  </div>
-                ))}
-                <Separator />
-                <Button data-testid="save-notifications">Guardar Preferencias</Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+  if (isLoading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
-    </DashboardLayout>
+    );
+  }
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-8 bg-[#0a0a0a] min-h-screen text-white">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight uppercase" style={{ fontFamily: "var(--font-display)" } as any}>
+          Configuración del Taller
+        </h1>
+        <p className="text-muted-foreground text-sm mt-1">Personaliza la identidad de tu negocio y datos fiscales para facturación</p>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Card className="border-white/10 bg-white/5 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" /> Datos Generales
+              </CardTitle>
+              <CardDescription>Información básica que aparecerá en el encabezado de tus documentos.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Nombre Comercial</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Mi Taller S.L." className="bg-white/5 border-white/10" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="nif"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs uppercase font-bold text-muted-foreground">NIF / CIF</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="B12345678" className="bg-white/5 border-white/10" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Dirección Física</FormLabel>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <FormControl>
+                        <Input {...field} className="pl-10 bg-white/5 border-white/10" placeholder="Calle Ejemplo 123, Madrid" />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Teléfono de Contacto</FormLabel>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <FormControl>
+                        <Input {...field} className="pl-10 bg-white/5 border-white/10" placeholder="+34 600 000 000" />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="border-white/10 bg-white/5 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ImageIcon className="h-5 w-5 text-primary" /> Identidad Visual
+              </CardTitle>
+              <CardDescription>Sube tu logo para que aparezca en presupuestos e inspecciones.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs uppercase font-bold text-muted-foreground">URL del Logo (PNG/SVG)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="https://mi-servidor.com/logo.png" className="bg-white/5 border-white/10" />
+                    </FormControl>
+                    {field.value && (
+                      <div className="mt-4 p-4 border border-white/10 rounded-lg bg-white/5 flex items-center justify-center">
+                        <img src={field.value} alt="Preview" className="h-20 object-contain" onError={(e) => (e.currentTarget.src = "")} />
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end pt-4">
+            <Button 
+              type="submit" 
+              className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 gap-2"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  <Save className="h-5 w-5" /> Guardar Cambios
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
   );
 }

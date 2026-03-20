@@ -15,6 +15,7 @@ model Shop {
   name                   String
   address                String?
   phone                  String?
+  nif                    String?
   logo                   String?
   subscriptionStatus     String    @default("FREE_TRIAL") // FREE_TRIAL | ACTIVE | PAST_DUE | CANCELLED
   subscriptionPlan       String    @default("STARTER")    // STARTER | PROFESSIONAL | ENTERPRISE
