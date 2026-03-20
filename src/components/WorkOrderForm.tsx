@@ -29,10 +29,12 @@ const workOrderSchema = z.object({
   vehicleId: z.string().min(1, "Vehículo es requerido"),
   technicianId: z.string().min(1, "Técnico es requerido"),
   services: z.array(z.object({
-    name: z.string().min(1, "Nombre del servicio requerido"),
-    estimatedHours: z.number().min(0.1),
+    name: z.string().min(1, "Nombre del servicio o pieza requerido"),
+    estimatedHours: z.number().min(0).optional(),
     price: z.number().min(0),
-  })).min(1, "Añade al menos un servicio"),
+    itemId: z.string().optional(),
+    quantity: z.number().min(1).optional(),
+  })).min(1, "Añade al menos un servicio o pieza"),
   notes: z.string().optional(),
 });
 
@@ -49,6 +51,11 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
   const { data: technicians, isLoading: loadingTechs } = useQuery<any[]>({
     queryKey: ["/api/technicians"],
     queryFn: () => fetch("/api/technicians").then(res => res.json()),
+  });
+  
+  const { data: inventory } = useQuery<any[]>({
+    queryKey: ["/api/inventory"],
+    queryFn: () => fetch("/api/inventory").then(res => res.json()),
   });
 
   const form = useForm<WorkOrderFormValues>({
@@ -143,15 +150,26 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <FormLabel>Servicios</FormLabel>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ name: "", estimatedHours: 1, price: 0 })}
-              className="h-8 gap-1 text-xs"
-            >
-              <Plus className="h-3 w-3" /> Añadir Servicio
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ name: "", estimatedHours: 1, price: 0 })}
+                className="h-8 gap-1 text-xs"
+              >
+                <Plus className="h-3 w-3" /> Añadir Mano de Obra
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => append({ name: "", price: 0, quantity: 1, itemId: "" })}
+                className="h-8 gap-1 text-xs bg-emerald-600/10 text-emerald-500 hover:bg-emerald-600/20 border-emerald-600/20"
+              >
+                <Plus className="h-3 w-3" /> Añadir Pieza de Stock
+              </Button>
+            </div>
           </div>
           
           {fields.map((field, index) => (
@@ -163,7 +181,34 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} placeholder="P. ej. Cambio de aceite" className="bg-white/5 border-white/10" />
+                        {form.watch(`services.${index}.itemId`) !== undefined ? (
+                          <Select
+                            onValueChange={(val) => {
+                              const item = inventory?.find(i => i.id === val);
+                              if (item) {
+                                form.setValue(`services.${index}.name`, item.name);
+                                form.setValue(`services.${index}.price`, item.salePrice);
+                                form.setValue(`services.${index}.itemId`, item.id);
+                              }
+                            }}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="bg-white/5 border-white/10">
+                                <SelectValue placeholder="Seleccionar pieza..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-[#0a0a0a] border-white/10 text-white">
+                              {inventory?.map((item) => (
+                                <SelectItem key={item.id} value={item.id}>
+                                  {item.name} ({item.sku}) - {item.quantity} en stock
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input {...field} placeholder="P. ej. Cambio de aceite" className="bg-white/5 border-white/10" />
+                        )}
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -177,14 +222,24 @@ export function WorkOrderForm({ onSuccess }: { onSuccess?: () => void }) {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
-                          type="number"
-                          step="0.5"
-                          {...field}
-                          onChange={e => field.onChange(parseFloat(e.target.value))}
-                          placeholder="Hrs"
-                          className="bg-white/5 border-white/10"
-                        />
+                        {form.watch(`services.${index}.itemId`) !== undefined ? (
+                          <Input
+                            type="number"
+                            {...field}
+                            onChange={e => field.onChange(parseInt(e.target.value))}
+                            placeholder="Cant"
+                            className="bg-white/5 border-white/10"
+                          />
+                        ) : (
+                          <Input
+                            type="number"
+                            step="0.5"
+                            {...field}
+                            onChange={e => field.onChange(parseFloat(e.target.value))}
+                            placeholder="Hrs"
+                            className="bg-white/5 border-white/10"
+                          />
+                        )}
                       </FormControl>
                       <FormMessage />
                     </FormItem>

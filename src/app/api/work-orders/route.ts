@@ -90,20 +90,40 @@ export async function POST(req: NextRequest) {
 
     // Calculate total from services
     const services = (data.services as any[]) || [];
-    const totalAmount = services.reduce((sum, s) => sum + (s.price || 0), 0);
+    const totalAmount = services.reduce((sum, s) => sum + (s.price || (s.unitPrice * (s.quantity || 1)) || 0), 0);
 
-    const wo = await prisma.workOrder.create({
-      data: {
-        ...data,
-        shopId,
-        customerId,
-        totalAmount,
-      },
-      include: {
-        customer: true,
-        vehicle: true,
-        technician: true,
+    // Create Work Order and Update Inventory in a transaction
+    const wo = await prisma.$transaction(async (tx) => {
+      // 1. Create the Work Order
+      const newWO = await tx.workOrder.create({
+        data: {
+          ...data,
+          shopId,
+          customerId,
+          totalAmount,
+        },
+        include: {
+          customer: true,
+          vehicle: true,
+          technician: true,
+        }
+      });
+
+      // 2. Deduct inventory items if any
+      for (const service of services) {
+        if (service.itemId && service.quantity) {
+          await tx.inventoryItem.update({
+            where: { id: service.itemId, shopId },
+            data: {
+              quantity: {
+                decrement: service.quantity
+              }
+            }
+          });
+        }
       }
+
+      return newWO;
     });
 
     trackEvent('orden_trabajo_creada', { 

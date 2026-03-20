@@ -39,11 +39,14 @@ export default function InventoryPage() {
   // Queries
   const { data: items, isLoading } = useQuery<any[]>({
     queryKey: ["/api/inventory", categoryFilter, searchTerm],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (categoryFilter !== "all") params.append("category", categoryFilter);
       if (searchTerm) params.append("search", searchTerm);
-      return fetch(`/api/inventory?${params.toString()}`).then(res => res.json());
+      const res = await fetch(`/api/inventory?${params.toString()}`);
+      if (!res.ok) throw new Error("Error fetching inventory");
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
     },
   });
 
@@ -267,7 +270,7 @@ export default function InventoryPage() {
                           <span className="text-[9px] text-muted-foreground uppercase">Min: {item.minQuantity}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right font-black text-primary">€{item.salePrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-black text-primary">€{(item.salePrice || 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
                           <Button 
