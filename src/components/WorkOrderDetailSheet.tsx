@@ -69,9 +69,10 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
       if (!res.ok) throw new Error("Error al generar factura");
       return res.json();
     },
-    onSuccess: () => {
-      alert("Factura generada con éxito");
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/work-orders"] });
+      window.open(`/invoices/${data.id}/print`, "_blank");
     },
   });
 
@@ -109,7 +110,7 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
             {statusLabels[order.status] || order.status}
           </Badge>
         </div>
-        <SheetTitle className="text-2xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+        <SheetTitle className="text-2xl font-bold text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" } as any}>
           Detalles de Orden
         </SheetTitle>
         <SheetDescription className="text-muted-foreground flex items-center gap-2">
@@ -211,14 +212,24 @@ export function WorkOrderDetailSheet({ order, onClose }: { order: any; onClose: 
           </div>
           
           <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              className="h-12 border-white/10 hover:bg-white/10 text-white gap-2 font-medium"
-              onClick={() => createInvoiceMutation.mutate()}
-              disabled={createInvoiceMutation.isPending}
-            >
-              <CreditCard className="h-4 w-4" /> Facturar
-            </Button>
+            {order.invoices && order.invoices.length > 0 ? (
+              <Button
+                variant="default"
+                className="h-12 bg-emerald-600 hover:bg-emerald-500 text-white gap-2 font-bold shadow-lg shadow-emerald-600/20"
+                onClick={() => window.open(`/invoices/${order.invoices[0].id}/print`, "_blank")}
+              >
+                <FileText className="h-4 w-4" /> Ver Factura
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                className="h-12 border-white/10 hover:bg-white/10 text-white gap-2 font-medium"
+                onClick={() => createInvoiceMutation.mutate()}
+                disabled={createInvoiceMutation.isPending}
+              >
+                {createInvoiceMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />} Facturar
+              </Button>
+            )}
             <Button
               variant="outline"
               className="h-12 border-white/10 hover:bg-white/10 text-white gap-2 font-medium"

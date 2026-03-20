@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
           customer: true,
           vehicle: true,
           technician: true,
+          invoices: true,
         },
       }),
     ]);
